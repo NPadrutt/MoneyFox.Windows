@@ -7,6 +7,7 @@ using MoneyFox.Application.Accounts.Commands.DeleteAccountById;
 using MoneyFox.Application.Accounts.Commands.UpdateAccount;
 using MoneyFox.Application.Accounts.Queries.GetAccountById;
 using MoneyFox.Application.Common.CloudBackup;
+using MoneyFox.Application.Common.CurrencyConversion;
 using MoneyFox.Application.Common.Facades;
 using MoneyFox.Application.Common.Interfaces;
 using MoneyFox.Application.Resources;
@@ -29,8 +30,9 @@ namespace MoneyFox.Uwp.ViewModels
                                     ISettingsFacade settingsFacade,
                                     IBackupService backupService,
                                     IDialogService dialogService,
-                                    NavigationService navigationService)
-            : base(settingsFacade, backupService, dialogService, navigationService)
+                                    NavigationService navigationService,
+                                    ICurrencyConverterService currencyConverterService)
+            : base(settingsFacade, backupService, dialogService, navigationService, currencyConverterService)
         {
             this.mediator = mediator;
             this.mapper = mapper;

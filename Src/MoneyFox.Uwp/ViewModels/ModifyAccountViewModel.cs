@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using MoneyFox.Application.Common.CloudBackup;
+using MoneyFox.Application.Common.CurrencyConversion;
 using MoneyFox.Application.Common.Facades;
 using MoneyFox.Application.Common.Interfaces;
 using MoneyFox.Application.Resources;
@@ -20,6 +21,7 @@ namespace MoneyFox.Uwp.ViewModels
 
         private readonly IBackupService backupService;
         private readonly ISettingsFacade settingsFacade;
+        private readonly ICurrencyConverterService currencyConverterService;
 
         public int AccountId { get; set; }
 
@@ -29,10 +31,12 @@ namespace MoneyFox.Uwp.ViewModels
         protected ModifyAccountViewModel(ISettingsFacade settingsFacade,
                                          IBackupService backupService,
                                          IDialogService dialogService,
-                                         NavigationService navigationService)
+                                         NavigationService navigationService,
+                                         ICurrencyConverterService currencyConverterService)
         {
             this.settingsFacade = settingsFacade;
             this.backupService = backupService;
+            this.currencyConverterService = currencyConverterService;
 
             DialogService = dialogService;
             NavigationService = navigationService;
