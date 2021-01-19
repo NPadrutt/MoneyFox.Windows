@@ -7,6 +7,7 @@ using MoneyFox.Application.Common.Interfaces;
 using MoneyFox.Application.Resources;
 using MoneyFox.Domain.Entities;
 using MoneyFox.Ui.Shared.Commands;
+using MoneyFox.Ui.Shared.Services;
 using MoneyFox.Ui.Shared.Utilities;
 using MoneyFox.Ui.Shared.ViewModels.Accounts;
 using MoneyFox.Uwp.Services;

@@ -75,7 +75,7 @@ namespace MoneyFox.Uwp.ViewModels.Payments
         public RelayCommand LoadDataCommand => new RelayCommand(async () => await LoadDataAsync());
 
         public RelayCommand<PaymentViewModel> EditPaymentCommand
-            => new RelayCommand<PaymentViewModel>((vm) => navigationService.Navigate<EditPaymentViewModel>(vm));
+            => new RelayCommand<PaymentViewModel>((vm) => navigationService.NavigateAsync<EditPaymentViewModel>(vm));
 
         /// <summary>
         /// Deletes the passed PaymentViewModel.

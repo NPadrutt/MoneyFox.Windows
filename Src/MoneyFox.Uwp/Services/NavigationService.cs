@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MoneyFox.Ui.Shared.Services;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
 
@@ -51,38 +53,45 @@ namespace MoneyFox.Uwp.Services
 
         public bool CanGoBack => Frame?.CanGoBack ?? false;
 
-        public bool GoBack()
+        public bool CanGoForward => Frame?.CanGoForward ?? false;
+
+        public Task GoBack()
         {
             if(CanGoBack)
             {
                 Frame?.GoBack();
-                return true;
             }
 
-            return false;
+            return Task.CompletedTask;
         }
 
-        public bool GoForward()
+        public Task GoForward()
         {
-            if(Frame != null && Frame.CanGoForward)
+            if(CanGoForward)
             {
-                Frame.GoForward();
-                return true;
+                Frame?.GoForward();
             }
-            return false;
+
+            return Task.CompletedTask;
         }
 
         public void Initialize(object frame) => Frame = (Frame)frame;
 
-        public bool Navigate<TViewModel>(object? parameter = null) => Navigate(typeof(TViewModel), parameter);
+        public async Task NavigateAsync<TViewModel>(object parameter = null, bool animated = true)
+            => await NavigateAsync(typeof(TViewModel), parameter);
 
-        public bool Navigate(Type viewModelType, object? parameter = null)
+        public Task NavigateAsync(Type viewModelType, object parameter = null, bool animated = true)
         {
             if(Frame == null)
             {
                 throw new InvalidOperationException("Navigation frame not initialized.");
             }
-            return Frame.Navigate(GetView(viewModelType), parameter);
+            Frame.Navigate(GetView(viewModelType), parameter);
+            return Task.CompletedTask;
         }
+
+        public void Configure(Type viewModel, Type pageType) => throw new NotImplementedException();
+
+        public async Task NavigateModalAsync<TViewModel>(object parameter = null, bool animated = true) => await NavigateAsync(typeof(TViewModel), parameter);
     }
 }

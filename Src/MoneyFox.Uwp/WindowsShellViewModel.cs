@@ -5,6 +5,7 @@ using MoneyFox.Domain;
 using MoneyFox.Domain.Exceptions;
 using MoneyFox.Presentation.ViewModels.Statistic;
 using MoneyFox.Ui.Shared.Commands;
+using MoneyFox.Ui.Shared.Services;
 using MoneyFox.Ui.Shared.ViewModels.Backup;
 using MoneyFox.Uwp.Helpers;
 using MoneyFox.Uwp.Services;
@@ -49,7 +50,7 @@ namespace MoneyFox.Uwp
             set => Set(ref isBackEnabled, value);
         }
 
-        public static INavigationService NavigationService => ServiceLocator.Current.GetInstance<INavigationService>();
+        public static NavigationService NavigationService => (NavigationService) ServiceLocator.Current.GetInstance<INavigationService>();
 
         public WinUI.NavigationViewItem? Selected
         {
@@ -61,7 +62,7 @@ namespace MoneyFox.Uwp
 
         public ICommand ItemInvokedCommand => itemInvokedCommand ??= new RelayCommand<WinUI.NavigationViewItemInvokedEventArgs>(OnItemInvoked);
 
-        public RelayCommand<PaymentType> GoToPaymentCommand => new RelayCommand<PaymentType>(t => NavigationService.Navigate<AddPaymentViewModel>(t));
+        public RelayCommand<PaymentType> GoToPaymentCommand => new RelayCommand<PaymentType>(( async t => await NavigationService.NavigateAsync<AddPaymentViewModel>(t)));
 
         public void Initialize(Frame frame, WinUI.NavigationView navigationView, IList<KeyboardAccelerator> keyboardAccelerators)
         {
@@ -90,14 +91,16 @@ namespace MoneyFox.Uwp
 
             if(isXButton1Pressed)
             {
-                e.Handled = NavigationService.GoBack();
+                NavigationService.GoBack();
+                e.Handled = true;
             }
 
             bool isXButton2Pressed = e.CurrentPoint.Properties.PointerUpdateKind == PointerUpdateKind.XButton2Pressed;
 
             if(isXButton2Pressed)
             {
-                e.Handled = NavigationService.GoForward();
+                NavigationService.GoForward();
+                e.Handled = true;
             }
         }
 
@@ -115,14 +118,14 @@ namespace MoneyFox.Uwp
             await Task.CompletedTask;
         }
 
-        private void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)
+        private async void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)
         {
             Logger.Debug("Item invoked");
 
             if(args.IsSettingsInvoked)
             {
                 Logger.Info("Navigate to settings");
-                NavigationService.Navigate<WindowsSettingsViewModel>();
+                await NavigationService.NavigateAsync<WindowsSettingsViewModel>();
 
                 return;
             }
@@ -145,7 +148,7 @@ namespace MoneyFox.Uwp
             }
 
             string pageString = (string) item.GetValue(NavHelper.NavigateToProperty);
-            NavigationService.Navigate(GetTypeByString(pageString));
+            await NavigationService.NavigateAsync(GetTypeByString(pageString));
         }
 
         private Type GetTypeByString(string pageString)

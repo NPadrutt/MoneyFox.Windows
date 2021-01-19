@@ -1,5 +1,6 @@
 ﻿using MoneyFox.Ui.Shared.Services;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,38 +11,41 @@ namespace MoneyFox.Services
 {
     public class NavigationService : INavigationService
     {
-        private readonly object sync = new object();
-        private readonly Dictionary<Type, Type> pagesByKey = new Dictionary<Type, Type>();
         private readonly Stack<NavigationPage> navigationPageStack = new Stack<NavigationPage>();
         private NavigationPage CurrentNavigationPage => navigationPageStack.Peek();
 
-        public void Configure(Type viewModel, Type pageType)
+        private static readonly ConcurrentDictionary<Type, Type> viewModelMap = new ConcurrentDictionary<Type, Type>();
+
+        public static void Register<TViewModel, TView>() where TView : Page
         {
-            lock(sync)
+            if(!viewModelMap.TryAdd(typeof(TViewModel), typeof(TView)))
             {
-                if(pagesByKey.ContainsKey(viewModel))
-                {
-                    pagesByKey[viewModel] = pageType;
-                }
-                else
-                {
-                    pagesByKey.Add(viewModel, pageType);
-                }
+                throw new InvalidOperationException($"ViewModel already registered '{typeof(TViewModel).FullName}'");
             }
         }
 
         public Page SetRootPage(Type rootVmType)
         {
-            var rootPage = GetPage(rootVmType);
+            Page? rootPage = GetPage(rootVmType);
             navigationPageStack.Clear();
             var mainPage = new NavigationPage(rootPage);
             navigationPageStack.Push(mainPage);
             return mainPage;
         }
 
+        /// <summary>
+        ///     On Xamarin Forms always returns true;
+        /// </summary>
+        public bool CanGoBack => true;
+
+        /// <summary>
+        ///     On Xamarin Forms always returns false;
+        /// </summary>
+        public bool CanGoForward => false;
+
         public async Task GoBack()
         {
-            var navigationStack = CurrentNavigationPage.Navigation;
+            INavigation? navigationStack = CurrentNavigationPage.Navigation;
             if(navigationStack.NavigationStack.Count > 1)
             {
                 await CurrentNavigationPage.PopAsync();
@@ -60,7 +64,7 @@ namespace MoneyFox.Services
 
         public async Task NavigateModalAsync<TViewModel>(object parameter = null, bool animated = true)
         {
-            var page = GetPage(typeof(TViewModel), parameter);
+            Page? page = GetPage(typeof(TViewModel), parameter);
             NavigationPage.SetHasNavigationBar(page, false);
             var modalNavigationPage = new NavigationPage(page);
             await CurrentNavigationPage.Navigation.PushModalAsync(modalNavigationPage, animated);
@@ -68,63 +72,67 @@ namespace MoneyFox.Services
         }
 
         public async Task NavigateAsync<TViewModel>(object parameter = null, bool animated = true)
+            => await NavigateAsync(typeof(TViewModel));
+
+        public async Task NavigateAsync(Type viewModel, object parameter = null, bool animated = true)
         {
-            var page = GetPage(typeof(TViewModel), parameter);
+            Page? page = GetPage(viewModel, parameter);
             await CurrentNavigationPage.Navigation.PushAsync(page, animated);
+        }
+
+        public static Type GetView(Type viewModel)
+        {
+            if(viewModelMap.TryGetValue(viewModel, out Type view))
+            {
+                return view;
+            }
+            throw new InvalidOperationException($"View not registered for ViewModel '{viewModel.FullName}'");
         }
 
         private Page GetPage(Type viewModelType, object parameter = null)
         {
 
-            lock(sync)
+            if(!viewModelMap.TryGetValue(viewModelType, out Type type))
             {
-                if(!pagesByKey.ContainsKey(viewModelType))
-                {
-                    throw new ArgumentException(
-                        $"No such page: {viewModelType}. Did you forget to call NavigationService.Configure?");
-                }
+                throw new InvalidOperationException($"View not registered for ViewModel '{viewModelType.FullName}'");
 
-                var type = pagesByKey[viewModelType];
-                ConstructorInfo constructor;
-                object[] parameters;
-
-                if(parameter == null)
-                {
-                    constructor = type.GetTypeInfo()
-                        .DeclaredConstructors
-                        .FirstOrDefault(c => !c.GetParameters().Any());
-
-                    parameters = new object[]
-                    {
-                    };
-                }
-                else
-                {
-                    constructor = type.GetTypeInfo()
-                        .DeclaredConstructors
-                        .FirstOrDefault(
-                            c =>
-                            {
-                                var p = c.GetParameters();
-                                return p.Length == 1
-                                       && p[0].ParameterType == parameter.GetType();
-                            });
-
-                    parameters = new[]
-                    {
-                    parameter
-                };
-                }
-
-                if(constructor == null)
-                {
-                    throw new InvalidOperationException(
-                        "No suitable constructor found for page " + viewModelType);
-                }
-
-                var page = constructor.Invoke(parameters) as Page;
-                return page;
             }
+
+            ConstructorInfo constructor;
+            object[] parameters;
+
+            if(parameter == null)
+            {
+                constructor = type.GetTypeInfo()
+                    .DeclaredConstructors
+                    .FirstOrDefault(c => !c.GetParameters().Any());
+
+                parameters = new object[] { };
+            }
+            else
+            {
+                constructor = type.GetTypeInfo()
+                    .DeclaredConstructors
+                    .FirstOrDefault(
+                        c =>
+                        {
+                            ParameterInfo[]? p = c.GetParameters();
+                            return p.Length == 1 && p[0].ParameterType == parameter.GetType();
+                        });
+
+                parameters = new[] { parameter };
+            }
+
+            if(constructor == null)
+            {
+                throw new InvalidOperationException(
+                    "No suitable constructor found for page " + viewModelType);
+            }
+
+            var page = constructor.Invoke(parameters) as Page;
+            return page;
         }
+
+        public Task GoForward() => throw new NotImplementedException();
     }
 }

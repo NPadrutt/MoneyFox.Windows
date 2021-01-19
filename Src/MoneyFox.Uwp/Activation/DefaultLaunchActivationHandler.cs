@@ -1,4 +1,5 @@
 ﻿using CommonServiceLocator;
+using MoneyFox.Ui.Shared.Services;
 using MoneyFox.Uwp.Services;
 using System;
 using System.Threading.Tasks;
@@ -22,8 +23,7 @@ namespace MoneyFox.Uwp.Activation
         {
             // When the navigation stack isn't restored, navigate to the first page and configure
             // the new page by passing required information in the navigation parameter
-            NavigationService.Navigate(startupViewModel, args.Arguments);
-
+            await NavigationService.NavigateAsync(startupViewModel, args.Arguments);
             await Task.CompletedTask;
         }
 

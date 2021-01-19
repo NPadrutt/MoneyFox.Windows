@@ -68,15 +68,15 @@ namespace MoneyFox.Uwp.ViewModels.Payments
 
         /// <inheritdoc/>
         public RelayCommand GoToAddIncomeCommand
-                            => new RelayCommand(() => navigationService.Navigate<AddPaymentViewModel>(PaymentType.Income));
+                            => new RelayCommand(() => navigationService.NavigateAsync<AddPaymentViewModel>(PaymentType.Income));
 
         /// <inheritdoc/>
         public RelayCommand GoToAddExpenseCommand
-                            => new RelayCommand(() => navigationService.Navigate<AddPaymentViewModel>(PaymentType.Expense));
+                            => new RelayCommand(() => navigationService.NavigateAsync<AddPaymentViewModel>(PaymentType.Expense));
 
         /// <inheritdoc/>
         public RelayCommand GoToAddTransferCommand
-                            => new RelayCommand(() => navigationService.Navigate<AddPaymentViewModel>(PaymentType.Transfer));
+                            => new RelayCommand(() => navigationService.NavigateAsync<AddPaymentViewModel>(PaymentType.Transfer));
 
         /// <inheritdoc/>
         public AsyncCommand DeleteAccountCommand => new AsyncCommand(DeleteAccountAsync);

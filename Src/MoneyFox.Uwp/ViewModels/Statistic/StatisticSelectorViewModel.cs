@@ -2,12 +2,13 @@
 using GalaSoft.MvvmLight.Command;
 using MoneyFox.Application.Resources;
 using MoneyFox.Domain;
+using MoneyFox.Ui.Shared.Services;
 using MoneyFox.Ui.Shared.ViewModels.Statistics;
-using MoneyFox.Uwp.Services;
 using MoneyFox.Uwp.ViewModels.Statistic;
 using MoneyFox.Uwp.ViewModels.Statistic.StatisticCategorySummary;
 using MoneyFox.ViewModels.Statistics;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 #nullable enable
 namespace MoneyFox.Presentation.ViewModels.Statistic
@@ -58,25 +59,25 @@ namespace MoneyFox.Presentation.ViewModels.Statistic
         /// <summary>
         ///     Navigates to the statistic view and shows the selected statistic
         /// </summary>
-        public RelayCommand<StatisticSelectorType> GoToStatisticCommand => new RelayCommand<StatisticSelectorType>(GoToStatistic);
+        public RelayCommand<StatisticSelectorType> GoToStatisticCommand => new RelayCommand<StatisticSelectorType>(async (t) => await GoToStatistic(t));
 
-        private void GoToStatistic(StatisticSelectorType item)
+        private async Task GoToStatistic(StatisticSelectorType item)
         {
             if(item.Type == StatisticType.Cashflow)
             {
-                navigationService.Navigate<StatisticCashFlowViewModel>();
+                await navigationService.NavigateAsync<StatisticCashFlowViewModel>();
             }
             else if(item.Type == StatisticType.MonthlyAccountCashFlow)
             {
-                navigationService.Navigate<StatisticAccountMonthlyCashflowViewModel>();
+                await navigationService.NavigateAsync<StatisticAccountMonthlyCashflowViewModel>();
             }
             else if(item.Type == StatisticType.CategorySpreading)
             {
-                navigationService.Navigate<StatisticCategorySpreadingViewModel>();
+                await navigationService.NavigateAsync<StatisticCategorySpreadingViewModel>();
             }
             else if(item.Type == StatisticType.CategorySummary)
             {
-                navigationService.Navigate<StatisticCategorySummaryViewModel>();
+                await navigationService.NavigateAsync<StatisticCategorySummaryViewModel>();
             }
         }
     }

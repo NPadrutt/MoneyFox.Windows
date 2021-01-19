@@ -16,6 +16,6 @@ namespace MoneyFox.Uwp.ViewModels
         }
 
         /// <inheritdoc/>
-        public RelayCommand GoToAddAccountCommand => new RelayCommand(() => navigationService.Navigate<AddAccountViewModel>());
+        public RelayCommand GoToAddAccountCommand => new RelayCommand(() => navigationService.NavigateAsync<AddAccountViewModel>());
     }
 }

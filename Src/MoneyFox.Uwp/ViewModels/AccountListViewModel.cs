@@ -96,7 +96,7 @@ namespace MoneyFox.Uwp.ViewModels
 
         public AsyncCommand<AccountViewModel> DeleteAccountCommand => new AsyncCommand<AccountViewModel>(DeleteAsync);
 
-        private void EditAccount(AccountViewModel accountViewModel) => navigationService.Navigate<EditAccountViewModel>(accountViewModel.Id);
+        private void EditAccount(AccountViewModel accountViewModel) => navigationService.NavigateAsync<EditAccountViewModel>(accountViewModel.Id);
 
         private async Task LoadAsync()
         {
@@ -149,7 +149,7 @@ namespace MoneyFox.Uwp.ViewModels
                 return;
             }
 
-            navigationService.Navigate<PaymentListViewModel>(accountViewModel.Id);
+            navigationService.NavigateAsync<PaymentListViewModel>(accountViewModel.Id);
         }
 
         private async Task DeleteAsync(AccountViewModel accountToDelete)
