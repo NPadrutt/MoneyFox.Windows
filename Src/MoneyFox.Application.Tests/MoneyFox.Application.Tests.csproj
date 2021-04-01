@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="xunit.runner.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,7 +26,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.13" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="NLog" Version="4.7.8" />
+    <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
     <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.14" />
     <PackageReference Include="xunit" Version="2.4.1" />
